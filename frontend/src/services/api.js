@@ -54,4 +54,12 @@ export const usersAPI = {
   updateProfile: (data) => api.put('/users/profile', data),
 };
 
+export const emailAPI = {
+  contact: (data) => api.post('/email/contact', data),
+  subscribeNewsletter: (email) => api.post('/email/newsletter/subscribe', email),
+  unsubscribeNewsletter: (email) => api.post('/email/newsletter/unsubscribe', email),
+  getSubscribers: () => api.get('/email/newsletter/subscribers'),
+  sendNewsletter: (data) => api.post('/email/newsletter/send', data),
+};
+
 export default api;
