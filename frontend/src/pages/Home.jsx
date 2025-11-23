@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { postsAPI } from '../services/api';
-import PostCard from '../components/PostCard';
-import SearchFilters from '../components/SearchFilters';
+import React, { useState, useEffect } from "react";
+import { postsAPI } from "../services/api";
+import PostCard from "../components/PostCard";
+import SearchFilters from "../components/SearchFilters";
+import Newsletter from "../components/Newsletter";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -9,9 +10,9 @@ const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
-    search: '',
-    category: '',
-    tag: ''
+    search: "",
+    category: "",
+    tag: "",
   });
 
   useEffect(() => {
@@ -24,12 +25,12 @@ const Home = () => {
       const response = await postsAPI.getPosts({
         page: currentPage,
         limit: 9,
-        ...filters
+        ...filters,
       });
       setPosts(response.data.posts);
       setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,8 @@ const Home = () => {
           Welcome to BlogPlatform
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Discover amazing stories, share your thoughts, and connect with other writers in our community.
+          Discover amazing stories, share your thoughts, and connect with other
+          writers in our community.
         </p>
       </section>
 
@@ -67,7 +69,9 @@ const Home = () => {
       <section className="mb-12">
         {posts.length === 0 ? (
           <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No posts found</h3>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              No posts found
+            </h3>
             <p className="text-gray-500">Try adjusting your search criteria</p>
           </div>
         ) : (
@@ -82,7 +86,9 @@ const Home = () => {
             {totalPages > 1 && (
               <div className="flex justify-center space-x-2">
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage === 1}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
@@ -92,7 +98,9 @@ const Home = () => {
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
                   disabled={currentPage === totalPages}
                   className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
@@ -102,6 +110,9 @@ const Home = () => {
             )}
           </>
         )}
+      </section>
+      <section className="max-w-2xl mx-auto mt-16">
+        <Newsletter />
       </section>
     </div>
   );
