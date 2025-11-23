@@ -9,6 +9,8 @@ const authRoutes = require('./routes/auth');
 const postRoutes = require('./routes/posts');
 const userRoutes = require('./routes/users');
 const emailRoutes = require('./routes/email');
+const translateRoutes = require('./routes/translate');
+
 
 const app = express();
 
@@ -26,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/translate', translateRoutes);
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
@@ -35,4 +38,15 @@ mongoose.connect(process.env.MONGODB_URI)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Gemini AI Translation service enabled: ${!!process.env.GEMINI_API_KEY}`);
+});
+
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error('Server error:', error);
+  res.status(500).json({
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? error.message : undefined
+  });
 });

@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { postsAPI } from '../services/api';
 import CommentSection from '../components/CommentSection';
+import SpeechControls from '../components/SpeechControls';
+import TranslationControls from '../components/TranslationControls';
 
 const PostDetail = () => {
   const [post, setPost] = useState(null);
@@ -76,7 +78,7 @@ const PostDetail = () => {
   if (error || !post) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Post not found</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Post not found</h2>
         <Link to="/" className="btn-primary">
           Back to Home
         </Link>
@@ -94,7 +96,7 @@ const PostDetail = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <article className="card p-8">
+      <article className="card p-6 dark:bg-gray-800">
         {/* Post Header */}
         <header className="mb-8">
           {post.coverImage && (
@@ -107,7 +109,7 @@ const PostDetail = () => {
             </div>
           )}
 
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             {post.title}
           </h1>
 
@@ -123,8 +125,8 @@ const PostDetail = () => {
                   className="w-10 h-10 rounded-full"
                 />
                 <div>
-                  <div className="font-medium text-gray-900">{post.author.username}</div>
-                  <div className="text-sm text-gray-500">{formatDate(post.createdAt)}</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{post.author.username}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(post.createdAt)}</div>
                 </div>
               </Link>
             </div>
@@ -133,7 +135,7 @@ const PostDetail = () => {
               <div className="flex space-x-2">
                 <Link
                   to={`/edit-post/${post._id}`}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >
                   Edit
                 </Link>
@@ -157,7 +159,7 @@ const PostDetail = () => {
               {post.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full"
+                  className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-sm rounded-full"
                 >
                   #{tag}
                 </span>
@@ -166,22 +168,28 @@ const PostDetail = () => {
           )}
         </header>
 
+        {/* Text-to-Speech Controls */}
+        <SpeechControls content={post.content} className="mb-6" />
+
+        {/* Translation Controls */}
+        <TranslationControls content={post.content} className="mb-6" />
+
         {/* Post Content */}
         <div 
-          className="prose prose-lg max-w-none mb-8"
+          className="prose prose-lg max-w-none mb-8 dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
         {/* Post Actions */}
-        <footer className="border-t border-gray-200 pt-6">
+        <footer className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex items-center justify-between">
             <button
               onClick={handleLike}
               disabled={likeLoading}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                 isLiked 
-                  ? 'bg-red-50 text-red-600 hover:bg-red-100' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30' 
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               <svg 
@@ -195,7 +203,7 @@ const PostDetail = () => {
               <span>{post.likesCount} {post.likesCount === 1 ? 'Like' : 'Likes'}</span>
             </button>
 
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               {post.commentsCount} {post.commentsCount === 1 ? 'Comment' : 'Comments'}
             </div>
           </div>

@@ -62,4 +62,8 @@ export const emailAPI = {
   sendNewsletter: (data) => api.post('/email/newsletter/send', data),
 };
 
+export const translationAPI = {
+  translate: (data) => api.post('/translate', data),
+};
+
 export default api;
