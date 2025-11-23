@@ -11,6 +11,7 @@ import PostDetail from './pages/PostDetail';
 import Profile from './pages/Profile';
 import AuthSuccess from './pages/AuthSuccess';
 import ProtectedRoute from './components/ProtectedRoute';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/auth/success" element={<AuthSuccess />} />
               <Route path="/post/:id" element={<PostDetail />} />
               <Route path="/profile/:id" element={<Profile />} />
+              <Route path="/contact" element={<Contact />} />
               <Route 
                 path="/create-post" 
                 element={
