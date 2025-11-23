@@ -8,6 +8,7 @@ require('./config/passport');
 const authRoutes = require('./routes/auth');
 const postRoutes = require('./routes/posts');
 const userRoutes = require('./routes/users');
+const emailRoutes = require('./routes/email');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(passport.initialize());
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/email', emailRoutes);
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
