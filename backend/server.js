@@ -66,165 +66,155 @@
 
 
 
-
-
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
 const path = require('path');
-require('dotenv').config();
-require('./config/passport');
 
-const authRoutes = require('./routes/auth');
-const postRoutes = require('./routes/posts');
-const userRoutes = require('./routes/users');
-const emailRoutes = require('./routes/email');
-const translateRoutes = require('./routes/translate');
+// Load environment variables
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 const app = express();
 
-// CORS configuration for Vercel
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  process.env.CLIENT_URL,
-  // Add your actual Vercel frontend URL here
-  'https://inshightflow.vercel.app'
-].filter(Boolean);
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
-}));
-
-// Middleware
+// Basic middleware first
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Simple CORS for initial setup
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://inshightflow.vercel.app',
+    'https://personal-blog-platform-blush.vercel.app'
+  ],
+  credentials: true
+}));
 
-// Initialize passport
-app.use(passport.initialize());
-
-// Test route to verify server is working
+// Test route - should work even without DB
 app.get('/', (req, res) => {
   res.json({
     message: 'Personal Blog Platform API is running!',
-    version: '1.0.0',
     status: 'active',
-    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Health check without DB dependency
+app.get('/api/health', (req, res) => {
+  res.json({
+    message: 'API is healthy',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString()
   });
 });
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    message: 'API is healthy!',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
-});
+// Initialize Passport only if we have the config
+try {
+  require('./config/passport');
+  app.use(passport.initialize());
+  console.log('✅ Passport initialized');
+} catch (error) {
+  console.log('⚠️ Passport config not available, continuing without auth');
+}
 
-// API Routes - Make sure these are mounted
-app.use('/api/auth', authRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/email', emailRoutes);
-app.use('/api/translate', translateRoutes);
-
-// Database connection with better error handling
+// Database connection with timeout
 const connectDB = async () => {
   try {
     if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI is not defined in environment variables');
+      console.log('❌ MONGODB_URI not found in environment variables');
+      return;
     }
+
+    console.log('🔗 Attempting MongoDB connection...');
     
-    await mongoose.connect(process.env.MONGODB_URI, {
+    // MongoDB connection with timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('MongoDB connection timeout')), 10000)
+    );
+
+    const connectionPromise = mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
     });
-    console.log('✅ Connected to MongoDB');
+
+    await Promise.race([connectionPromise, timeoutPromise]);
+    console.log('✅ MongoDB connected successfully');
+    
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-    // Don't exit process in Vercel environment
-    if (process.env.VERCEL) {
-      console.log('Continuing without MongoDB connection in Vercel environment');
-    } else {
-      process.exit(1);
-    }
+    console.error('❌ MongoDB connection failed:', error.message);
+    // Don't crash the app - continue without DB
   }
 };
 
-// Connect to database
-connectDB();
+// Connect to DB (but don't block startup)
+connectDB().catch(console.error);
 
-// Handle MongoDB connection events
-mongoose.connection.on('disconnected', () => {
-  console.log('🔌 MongoDB disconnected');
-});
+// Import routes only after basic setup
+let authRoutes, postRoutes, userRoutes, emailRoutes, translateRoutes;
 
-mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err);
-});
+try {
+  authRoutes = require('./routes/auth');
+  postRoutes = require('./routes/posts');
+  userRoutes = require('./routes/users');
+  emailRoutes = require('./routes/email');
+  translateRoutes = require('./routes/translate');
+  
+  // Mount routes
+  app.use('/api/auth', authRoutes);
+  app.use('/api/posts', postRoutes);
+  app.use('/api/users', userRoutes);
+  app.use('/api/email', emailRoutes);
+  app.use('/api/translate', translateRoutes);
+  
+  console.log('✅ All routes mounted successfully');
+} catch (error) {
+  console.error('❌ Error loading routes:', error.message);
+  
+  // Provide basic API endpoints even if routes fail to load
+  app.get('/api/posts', (req, res) => {
+    res.json({ 
+      message: 'Posts API is initializing...',
+      posts: [],
+      currentPage: 1,
+      totalPages: 1,
+      totalPosts: 0
+    });
+  });
+}
 
-// 404 handler for API routes - Make this more specific
-app.use('/api/*', (req, res) => {
+// Simple 404 handler
+app.use('*', (req, res) => {
   res.status(404).json({
-    error: 'API endpoint not found',
-    message: `The endpoint ${req.originalUrl} does not exist`,
-    availableEndpoints: [
-      '/api/auth',
-      '/api/posts', 
-      '/api/users',
-      '/api/email',
-      '/api/translate'
-    ]
+    error: 'Endpoint not found',
+    path: req.originalUrl,
+    availableEndpoints: ['/', '/api/health', '/api/posts', '/api/auth']
   });
 });
 
-// Global error handler
+// Error handling middleware
 app.use((error, req, res, next) => {
   console.error('🚨 Server error:', error);
   res.status(500).json({
     message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
   });
-});
-
-// Global error handler for unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('🚨 Unhandled Promise Rejection:', err);
-});
-
-// Global error handler for uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.error('🚨 Uncaught Exception:', err);
 });
 
 const PORT = process.env.PORT || 5000;
 
-// For Vercel, we need to export the app
-// Remove the app.listen() call as Vercel will handle the server
+// For local development only
 if (require.main === module) {
-  // This block will only run when the file is executed directly (not in Vercel)
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 }
 
-// Export for Vercel serverless functions
+// Export for Vercel
 module.exports = app;
