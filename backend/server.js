@@ -16,7 +16,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://inshightflow.vercel.app'
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -50,3 +54,6 @@ app.use((error, req, res, next) => {
     error: process.env.NODE_ENV === 'development' ? error.message : undefined
   });
 });
+
+
+export default app;
