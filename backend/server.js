@@ -77,7 +77,8 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:5173',
     'https://inshightflow.vercel.app',
-    'https://personal-blog-platform-blush.vercel.app'
+    'https://https://personal-blog-platform-blush.vercel.app'
+
   ],
   credentials: true
 }));
@@ -112,10 +113,10 @@ app.use((req, res) => {
 });
 
 // Database connection
-// mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI)
 mongoose.connect(process.env.MONGODB_URI, {
-  serverSelectionTimeoutMS: 100000, 
-  socketTimeoutMS: 100000, 
+  serverSelectionTimeoutMS: 30000, // 30 seconds
+  socketTimeoutMS: 45000, // 45 seconds
   maxPoolSize: 10,
   retryWrites: true,
   w: 'majority'
