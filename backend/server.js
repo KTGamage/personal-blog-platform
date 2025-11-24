@@ -76,7 +76,8 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://inshightflow.vercel.app'
+    'https://inshightflow.vercel.app',
+    'https://personal-blog-platform-blush.vercel.app'
   ],
   credentials: true
 }));
