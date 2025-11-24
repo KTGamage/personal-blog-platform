@@ -275,6 +275,90 @@ Rich Text Editor Custom Styles
   margin: 0.5rem 0;
 }
 
+/* Rich Text Content Dark Mode Fixes */
+.rich-text-content {
+  color: inherit;
+}
+
+.dark .rich-text-content {
+  color: #f9fafb !important; /* gray-50 */
+}
+
+/* Force all child elements to inherit color in dark mode */
+.dark .rich-text-content * {
+  color: inherit !important;
+}
+
+/* Specific element overrides */
+.dark .rich-text-content p {
+  color: #e5e7eb !important; /* gray-200 */
+}
+
+.dark .rich-text-content h1,
+.dark .rich-text-content h2,
+.dark .rich-text-content h3,
+.dark .rich-text-content h4,
+.dark .rich-text-content h5,
+.dark .rich-text-content h6 {
+  color: #f9fafb !important; /* gray-50 */
+}
+
+.dark .rich-text-content strong,
+.dark .rich-text-content b {
+  color: #f9fafb !important; /* gray-50 */
+}
+
+.dark .rich-text-content em,
+.dark .rich-text-content i {
+  color: #e5e7eb !important; /* gray-200 */
+}
+
+.dark .rich-text-content blockquote {
+  color: #d1d5db !important; /* gray-300 */
+  border-left-color: #4b5563 !important; /* gray-600 */
+}
+
+.dark .rich-text-content code {
+  color: #f9fafb !important; /* gray-50 */
+  background-color: #374151 !important; /* gray-700 */
+}
+
+.dark .rich-text-content pre {
+  background-color: #1f2937 !important; /* gray-800 */
+  color: #f9fafb !important; /* gray-50 */
+}
+
+.dark .rich-text-content pre code {
+  background-color: transparent !important;
+}
+
+.dark .rich-text-content a {
+  color: #fbbf24 !important; /* amber-400 */
+}
+
+.dark .rich-text-content a:hover {
+  color: #f59e0b !important; /* amber-500 */
+}
+
+.dark .rich-text-content ul,
+.dark .rich-text-content ol {
+  color: #e5e7eb !important; /* gray-200 */
+}
+
+.dark .rich-text-content li {
+  color: #e5e7eb !important; /* gray-200 */
+}
+
+.dark .rich-text-content table {
+  color: #e5e7eb !important; /* gray-200 */
+}
+
+.dark .rich-text-content th,
+.dark .rich-text-content td {
+  color: #e5e7eb !important; /* gray-200 */
+  border-color: #4b5563 !important; /* gray-600 */
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .rich-text-editor-container .ql-editor {
