@@ -113,8 +113,8 @@ app.use((req, res) => {
 // Database connection
 // mongoose.connect(process.env.MONGODB_URI)
 mongoose.connect(process.env.MONGODB_URI, {
-  serverSelectionTimeoutMS: 30000, // 30 seconds
-  socketTimeoutMS: 45000, // 45 seconds
+  serverSelectionTimeoutMS: 100000, 
+  socketTimeoutMS: 100000, 
   maxPoolSize: 10,
   retryWrites: true,
   w: 'majority'
