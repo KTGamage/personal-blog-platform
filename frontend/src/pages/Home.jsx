@@ -183,7 +183,7 @@ const Home = () => {
         <section className="text-center mb-12">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-300 mb-4">
-              Welcome to BlogPlatform
+              Welcome to InsightFlow
             </h1>
             <p className="text-lg text-gray-500 mb-8">
               Discover amazing stories, share your thoughts, and connect with other writers in our community.
